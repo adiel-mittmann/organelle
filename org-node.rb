@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'time'
 
 class Node
@@ -35,7 +36,13 @@ class Node
   end
 
   def clean_label
-    self.label.gsub(/\*+ (TODO |APPT |DONE )?(\[#[A-C]\] )?([^<]*)(<.*>)?$/, '\\3').strip
+    self.label
+      .gsub(/^\*+ */, "")
+      .gsub(/^(TODO|APPT|DONE) */, "")
+      .gsub(/^\[#[A-Z]\] */, "")
+      .gsub(/ *:[^: ]*:$/, "")
+      .gsub(/ *\[[0-9]*%\]$/, "")
+      .gsub(/ *<[0-9]{4}-[0-9]{2}-[0-9]{2} [^>]*>$/, "")
   end
 
   def path
@@ -67,12 +74,8 @@ class Node
     end
 
     case
-    when @label =~ /\[#A\]/
-      @priority = 0
-    when @label =~ /\[#B\]/
-      @priority = 1
-    when @label =~ /\[#C\]/
-      @priority = 2
+    when @label =~ /\[#([A-Z])\]/
+      @priority = $1.ord - "A".ord
     else
       @priority = 1
     end
@@ -126,14 +129,14 @@ class Node
     end
 
     if @priority
-      s << " " << ["[#A]", "[#B]", "[#C]"][@priority]
+      s << " " << "[#" << ("A".ord + @priority) << "]"
     end
 
     case
     when self.root?
       s << " ROOT"
     else
-      s << " " << self.clean_label
+      s << " “" << self.clean_label << "”"
     end
 
     if @time

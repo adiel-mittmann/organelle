@@ -5,7 +5,7 @@ module HtmlFormatter
   end
 
   def priority_text(i)
-    ['#A', '#B', '#C'][i]
+    "#" + ("A".ord + i).chr
   end
 
   def format_node(node)
